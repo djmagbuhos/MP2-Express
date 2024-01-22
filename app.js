@@ -2,12 +2,14 @@ const ex = require("express");
 const pr = require("./products");
 const gm = require("./games");
 const ad = require("./address.js");
+const ct = require("./add_to_cart.js");
 const cors = require("cors");
 
 const app = ex();
 const p = pr.products;
 const g = gm.games;
 const a = ad.address;
+const c = ct.cart;
 
 app.use(ex.json());
 app.use(cors());
@@ -23,20 +25,40 @@ app.get("/api/games", (req, res) => {
 app.get("/api/product/:id", (req, res) => {
   let products = false;
   for (let i = 0; i < p.length; i++) {
-    if (p[i].id == Number(req.params.id)) {
+    if (p[i].item_id == Number(req.params.id)) {
       products = p[i];
       break;
     }
+  }
+
+  if (products) {
+    res.send(products);
+    console.log(products);
+  } else {
+    let err = "Product not found!";
+    res.status(404);
+    res.send(err);
+    console.error(err);
   }
 });
 
 app.get("/api/games/:id", (req, res) => {
   let games = false;
   for (let i = 0; i < g.length; i++) {
-    if (g[i].id == Number(req.params.id)) {
+    if (g[i].item_id == Number(req.params.id)) {
       games = g[i];
       break;
     }
+  }
+
+  if (games) {
+    res.send(games);
+    console.log(games);
+  } else {
+    let err = "Game not found!";
+    res.status(404);
+    res.send(err);
+    console.error(err);
   }
 });
 
@@ -146,7 +168,28 @@ app.delete("/api/address/:id", (req, res) => {
   }
 });
 
-let port = process.env.PORT || 3001;
-app.listen(port, () => {
-  console.log("Server is running on port " + port);
+//
+//
+//ADD TO CART
+app.get("/api/cart", (req, res) => {
+  res.send(c);
 });
+
+//
+//
+// NEW cart
+app.put("/api/cart", (req, res) => {
+  let new_cart = {
+    item_name: req.body.item_name,
+    price: req.body.price,
+    image_card: req.body.image_card,
+  };
+
+  console.log(new_cart);
+  c.push(new_cart);
+  res.send(new_cart);
+});
+
+let port = 3001;
+app.listen(port);
+console.log("Starting server at port " + port + "...");
